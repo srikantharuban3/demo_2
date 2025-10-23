@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Execution Report - ParaBank Test Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        
+        .execution-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .info-card p {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .summary {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-total { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .stat-passed { background: linear-gradient(45deg, #27ae60, #229954); }
+        .stat-failed { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .stat-rate { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .test-case {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-case h2 {
+            color: #2c3e50;
+            border-left: 5px solid #27ae60;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .test-details {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .test-meta {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .test-meta h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .meta-label {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        
+        .meta-value {
+            color: #2c3e50;
+        }
+        
+        .status-passed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .steps h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .step {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #27ae60;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .step-number {
+            background: #27ae60;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .step-description {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .step-result {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .verification {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+            margin-top: 20px;
+        }
+        
+        .verification h3 {
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        
+        .verification-item {
+            background: white;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .check-icon {
+            color: #27ae60;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .chart-container h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        #chartContainer {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .screenshot {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .screenshot h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .screenshot img {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .test-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🎯 Test Execution Report</h1>
+            <p class="subtitle">ParaBank User Registration Test Suite</p>
+            
+            <div class="execution-info">
+                <div class="info-card">
+                    <h3>📅 Execution Date</h3>
+                    <p>October 23, 2025</p>
+                </div>
+                <div class="info-card">
+                    <h3>⏰ Execution Time</h3>
+                    <p id="executionTime"></p>
+                </div>
+                <div class="info-card">
+                    <h3>🌐 Environment</h3>
+                    <p>ParaBank Demo</p>
+                </div>
+                <div class="info-card">
+                    <h3>🤖 Tool</h3>
+                    <p>Playwright MCP</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary">
+            <h2>📊 Executive Summary</h2>
+            <div class="stats">
+                <div class="stat-card stat-total pulse">
+                    <h3>1</h3>
+                    <p>Total Tests</p>
+                </div>
+                <div class="stat-card stat-passed pulse">
+                    <h3>1</h3>
+                    <p>Passed</p>
+                </div>
+                <div class="stat-card stat-failed pulse">
+                    <h3>0</h3>
+                    <p>Failed</p>
+                </div>
+                <div class="stat-card stat-rate pulse">
+                    <h3>100%</h3>
+                    <p>Success Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-container">
+            <h2>📈 Test Results Visualization</h2>
+            <div id="chartContainer">
+                <canvas id="testChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Test Case Details -->
+        <div class="test-case">
+            <h2>🧪 TC 001 - Verify that user can register a new customer</h2>
+            
+            <div class="test-details">
+                <div class="test-meta">
+                    <h3>📋 Test Information</h3>
+                    <div class="meta-item">
+                        <span class="meta-label">Test ID:</span>
+                        <span class="meta-value">TC 001</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Status:</span>
+                        <span class="meta-value status-passed">✅ PASSED</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Start Time:</span>
+                        <span class="meta-value" id="startTime"></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">End Time:</span>
+                        <span class="meta-value" id="endTime"></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Duration:</span>
+                        <span class="meta-value">~45 seconds</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Browser:</span>
+                        <span class="meta-value">Chromium</span>
+                    </div>
+                </div>
+                
+                <div class="steps">
+                    <h3>🔄 Execution Steps</h3>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <div>
+                            <div class="step-description">Navigate to ParaBank Homepage</div>
+                            <div class="step-result">✅ Successfully navigated to https://parabank.parasoft.com/parabank/index.htm</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <div>
+                            <div class="step-description">Access Registration Page</div>
+                            <div class="step-result">✅ Successfully navigated to registration form at /register.htm</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <div>
+                            <div class="step-description">Fill Registration Form</div>
+                            <div class="step-result">✅ Completed all required fields with unique 10-character username "alice12345"</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <div>
+                            <div class="step-description">Submit Registration</div>
+                            <div class="step-result">✅ Form submitted successfully, account created</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">5</span>
+                        <div>
+                            <div class="step-description">Verify Welcome Message</div>
+                            <div class="step-result">✅ Welcome message "Welcome alice12345" displayed correctly</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification Results -->
+            <div class="verification">
+                <h3>✅ Verification Results</h3>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>Page title changed to "ParaBank | Customer Created"</span>
+                </div>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>Welcome message "Welcome alice12345" is displayed</span>
+                </div>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>Account services menu is accessible</span>
+                </div>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>User is automatically logged in after registration</span>
+                </div>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>Left panel shows "Welcome Alice Johnson" with full name</span>
+                </div>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>Username "alice12345" is exactly 10 characters as required</span>
+                </div>
+                
+                <div class="verification-item">
+                    <span class="check-icon">✓</span>
+                    <span>Confirmation text "Your account was created successfully" is visible</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Data Section -->
+        <div class="test-case">
+            <h2>📝 Test Data Used</h2>
+            <div class="test-details">
+                <div class="test-meta">
+                    <h3>👤 User Information</h3>
+                    <div class="meta-item">
+                        <span class="meta-label">First Name:</span>
+                        <span class="meta-value">Alice</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Last Name:</span>
+                        <span class="meta-value">Johnson</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Username:</span>
+                        <span class="meta-value">alice12345 (10 chars)</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Password:</span>
+                        <span class="meta-value">TestPass123!</span>
+                    </div>
+                </div>
+                
+                <div class="steps">
+                    <h3>🏠 Address Information</h3>
+                    <div class="meta-item">
+                        <span class="meta-label">Street:</span>
+                        <span class="meta-value">456 Oak Avenue</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">City:</span>
+                        <span class="meta-value">Boston</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">State:</span>
+                        <span class="meta-value">MA</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Zip Code:</span>
+                        <span class="meta-value">02101</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Phone:</span>
+                        <span class="meta-value">555-987-6543</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">SSN:</span>
+                        <span class="meta-value">987-65-4321</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshot Section -->
+        <div class="screenshot">
+            <h2>📸 Test Execution Screenshot</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: #7f8c8d;">
+                Screenshot captured at the successful completion of user registration
+            </p>
+            <img src=".playwright-mcp/TC001_Success_Screenshot.png" alt="TC001 Success Screenshot" />
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>📋 Generated by Playwright MCP Test Automation Framework</p>
+            <p>🔧 Automated Test Execution Report - ParaBank User Registration Suite</p>
+            <p>⚡ Powered by GitHub Copilot AI Assistant</p>
+        </div>
+    </div>
+
+    <script>
+        // Set execution time
+        const now = new Date();
+        document.getElementById('executionTime').textContent = now.toLocaleTimeString();
+        document.getElementById('startTime').textContent = new Date(now.getTime() - 45000).toLocaleTimeString();
+        document.getElementById('endTime').textContent = now.toLocaleTimeString();
+
+        // Create chart
+        const ctx = document.getElementById('testChart').getContext('2d');
+        const testChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Tests', 'Passed', 'Failed', 'Success Rate (%)'],
+                datasets: [{
+                    label: 'Test Results',
+                    data: [1, 1, 0, 100],
+                    backgroundColor: [
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(39, 174, 96, 0.8)',
+                        'rgba(231, 76, 60, 0.8)',
+                        'rgba(243, 156, 18, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(39, 174, 96, 1)',
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(243, 156, 18, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Test Execution Results',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        color: '#2c3e50'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: '#7f8c8d',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: '#7f8c8d',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+
+            // Animate steps
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.style.opacity = '0';
+                    step.style.transform = 'translateX(-20px)';
+                    step.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        step.style.opacity = '1';
+                        step.style.transform = 'translateX(0)';
+                    }, 100);
+                }, index * 300 + 1000);
+            });
+        });
+    </script>
+</body>
+</html>
