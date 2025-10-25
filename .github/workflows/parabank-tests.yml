@@ -117,8 +117,9 @@ jobs:
     - name: 📁 Create Tests Directory
       run: mkdir -p tests
       
-    - name: 🧪 Create Test File
+    - name: 🧪 Create Test Files
       run: |
+        # Create user registration test file
         cat > tests/user-registration.spec.ts << 'EOF'
         import { test, expect, Page } from '@playwright/test';
         
@@ -200,6 +201,119 @@ jobs:
               // Take screenshot on failure
               await page.screenshot({ 
                 path: `test-results/TC001_FAILED_${Date.now()}.png`,
+                fullPage: true 
+              });
+              
+              throw error;
+            }
+          });
+        });
+        EOF
+        
+        # Create user login test file
+        cat > tests/user-login.spec.ts << 'EOF'
+        import { test, expect, Page } from '@playwright/test';
+        
+        test.describe('ParaBank User Login Tests', () => {
+          test('TC 002 - Verify user login functionality with valid credentials', async ({ page }) => {
+            console.log('🧪 Starting TC 002: User Login Test');
+            
+            // First register a user to have valid credentials for login
+            const timestamp = Date.now().toString();
+            const username = 'login' + timestamp.slice(-5); // 10 characters
+            const password = 'LoginPass123!';
+            
+            try {
+              // Pre-requisite: Register a user first
+              console.log('📍 Pre-requisite: Register a test user');
+              await page.goto('/parabank/index.htm');
+              await page.waitForLoadState('networkidle');
+              
+              // Navigate to registration
+              const registerLink = page.getByRole('link', { name: 'Register' });
+              await registerLink.click();
+              await page.waitForLoadState('networkidle');
+              
+              // Fill registration form
+              await page.locator('input[id="customer.firstName"]').fill('Test');
+              await page.locator('input[id="customer.lastName"]').fill('User');
+              await page.locator('input[id="customer.address.street"]').fill('123 Test St');
+              await page.locator('input[id="customer.address.city"]').fill('Test City');
+              await page.locator('input[id="customer.address.state"]').fill('TC');
+              await page.locator('input[id="customer.address.zipCode"]').fill('12345');
+              await page.locator('input[id="customer.phoneNumber"]').fill('555-111-2222');
+              await page.locator('input[id="customer.ssn"]').fill('111-22-3333');
+              await page.locator('input[id="customer.username"]').fill(username);
+              await page.locator('input[id="customer.password"]').fill(password);
+              await page.locator('input[id="repeatedPassword"]').fill(password);
+              
+              // Submit registration
+              const registerButton = page.locator('input[value="Register"]');
+              await registerButton.click();
+              await page.waitForLoadState('networkidle');
+              
+              // Log out to test login
+              await page.getByRole('link', { name: 'Log Out' }).click();
+              await page.waitForLoadState('networkidle');
+              console.log('✅ Pre-requisite: Test user registered and logged out');
+              
+              // Step 1: Navigate to ParaBank homepage
+              console.log('📍 Step 1: Navigate to ParaBank homepage');
+              await page.goto('/parabank/index.htm');
+              await page.waitForLoadState('networkidle');
+              
+              // Verify homepage loaded
+              await expect(page).toHaveTitle(/ParaBank.*Welcome.*Online Banking/);
+              console.log('✅ Step 1: Successfully navigated to ParaBank homepage');
+              
+              // Step 2: Enter valid username
+              console.log('📍 Step 2: Enter valid username');
+              const usernameField = page.locator('input[name="username"]');
+              await usernameField.waitFor({ state: 'visible' });
+              await usernameField.fill(username);
+              console.log(`✅ Step 2: Entered username: ${username}`);
+              
+              // Step 3: Enter valid password
+              console.log('📍 Step 3: Enter valid password');
+              const passwordField = page.locator('input[name="password"]');
+              await passwordField.fill(password);
+              console.log('✅ Step 3: Entered password');
+              
+              // Step 4: Click Log In button
+              console.log('📍 Step 4: Click Log In button');
+              const loginButton = page.locator('input[value="Log In"]');
+              await loginButton.click();
+              await page.waitForLoadState('networkidle');
+              console.log('✅ Step 4: Clicked Log In button');
+              
+              // Step 5: Verify successful login and account overview page
+              console.log('📍 Step 5: Verify successful login');
+              
+              // Check that we're on accounts overview page
+              await expect(page).toHaveURL(/.*overview.htm/);
+              
+              // Check for account services section
+              const accountServices = page.locator('h2', { hasText: 'Account Services' });
+              await expect(accountServices).toBeVisible();
+              
+              console.log('✅ Step 5: Account overview page displayed successfully');
+              
+              // Step 6: Verify welcome message with username
+              console.log('📍 Step 6: Verify welcome message');
+              
+              // Check welcome message in left panel
+              const welcomeMessage = page.locator('.leftpanel p').first();
+              await expect(welcomeMessage).toContainText('Welcome Test User');
+              
+              console.log(`✅ Step 6: Welcome message verified for user: ${username}`);
+              console.log('🎉 TC 002 PASSED: User login completed successfully');
+              
+            } catch (error: any) {
+              console.log(`❌ TC 002 FAILED: ${error.message}`);
+              
+              // Take screenshot on failure
+              await page.screenshot({ 
+                path: `test-results/TC002_FAILED_${Date.now()}.png`,
                 fullPage: true 
               });
               
